@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { addDays, diffDays, formatMonthLabel, formatShortDate, todayIso } from "../lib/date";
 import { moveTimeline, resizeTimeline } from "../lib/tasks";
 import type { Task } from "../types/tasks";
@@ -19,7 +19,8 @@ type InteractionState =
     }
   | null;
 
-const DAY_WIDTH = 34;
+const DAY_WIDTH = 40;
+const LABEL_WIDTH = 320;
 
 function timelineColor(task: Task) {
   if (task.status === "done") {
@@ -38,17 +39,16 @@ export function TimelineCalendar({
   tasks: Task[];
   onUpdateTask: (taskId: string, patch: Partial<Task>) => void;
 }) {
-  const canvasRef = useRef<HTMLDivElement | null>(null);
   const [interaction, setInteraction] = useState<InteractionState>(null);
   const [liveDelta, setLiveDelta] = useState(0);
   const timelineTasks = useMemo(
-    () => tasks.filter((task) => task.timelineStart && task.timelineEnd),
+    () => tasks.filter((task) => task.timelineStart && task.dueDate),
     [tasks],
   );
 
   const bounds = useMemo(() => {
     const starts = timelineTasks.map((task) => task.timelineStart as string);
-    const ends = timelineTasks.map((task) => task.timelineEnd as string);
+    const ends = timelineTasks.map((task) => task.dueDate as string);
     const today = todayIso();
 
     const min = starts.concat(today).sort()[0] ?? today;
@@ -105,16 +105,27 @@ export function TimelineCalendar({
     onUpdateTask(task.id, patch);
   }
 
-  function getPreview(taskId: string, type: "move" | "resize", edge?: "start" | "end") {
-    if (!interaction || interaction.taskId !== taskId || interaction.type !== type) {
+  function getPreviewDates(task: Task) {
+    if (!task.timelineStart || !task.dueDate) {
       return null;
     }
 
-    if (type === "resize" && interaction.type === "resize" && interaction.edge !== edge) {
-      return null;
+    if (!interaction || interaction.taskId !== task.id) {
+      return { start: task.timelineStart, due: task.dueDate };
     }
 
-    return liveDelta;
+    const deltaDays = Math.round(liveDelta / DAY_WIDTH);
+    if (deltaDays === 0) {
+      return { start: task.timelineStart, due: task.dueDate };
+    }
+
+    if (interaction.type === "move") {
+      const patch = moveTimeline(task, deltaDays);
+      return { start: patch.timelineStart as string, due: patch.dueDate as string };
+    }
+
+    const patch = resizeTimeline(task, interaction.edge, deltaDays);
+    return { start: patch.timelineStart as string, due: patch.dueDate as string };
   }
 
   return (
@@ -125,58 +136,61 @@ export function TimelineCalendar({
           <h2>Timeline</h2>
         </div>
         <p className="timeline-caption">
-          Drag bars to move work. Drag the handles to change duration.
+          Drag the bar to move a schedule. Drag each handle to adjust start or due date.
         </p>
       </div>
 
       <div className="timeline-panel">
         <div className="timeline-shell">
           <div className="timeline-axis">
-            <div className="timeline-months">
-              {monthLabels.map((month) => (
-                <div
-                  className="timeline-month"
-                  key={month.date}
-                  style={{ width: month.span * DAY_WIDTH }}
-                >
-                  {month.label}
+            <div className="timeline-axis-row">
+              <div className="timeline-axis-spacer" />
+              <div className="timeline-axis-track">
+                <div className="timeline-months">
+                  {monthLabels.map((month) => (
+                    <div
+                      className="timeline-month"
+                      key={month.date}
+                      style={{ width: month.span * DAY_WIDTH }}
+                    >
+                      {month.label}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="timeline-days">
-              {columns.map((date) => (
-                <div
-                  className={`timeline-day ${date === todayIso() ? "is-today" : ""}`}
-                  key={date}
-                  style={{ width: DAY_WIDTH }}
-                >
-                  <span>{date.slice(-2)}</span>
+                <div className="timeline-days">
+                  {columns.map((date) => (
+                    <div
+                      className={`timeline-day ${date === todayIso() ? "is-today" : ""}`}
+                      key={date}
+                      style={{ width: DAY_WIDTH }}
+                    >
+                      <span>{date.slice(-2)}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           </div>
 
-          <div className="timeline-grid" ref={canvasRef}>
+          <div className="timeline-grid">
             {timelineTasks.map((task) => {
-              const offset = diffDays(bounds.start, task.timelineStart as string);
-              const length = diffDays(task.timelineStart as string, task.timelineEnd as string) + 1;
-              const movePreview = getPreview(task.id, "move") ?? 0;
-              const resizeStartPreview = getPreview(task.id, "resize", "start") ?? 0;
-              const resizeEndPreview = getPreview(task.id, "resize", "end") ?? 0;
-              const previewLeft = offset * DAY_WIDTH + movePreview + resizeStartPreview;
-              const previewWidth = Math.max(
-                DAY_WIDTH,
-                length * DAY_WIDTH + resizeEndPreview - resizeStartPreview,
-              );
+              const preview = getPreviewDates(task);
+              if (!preview) {
+                return null;
+              }
+
+              const offset = diffDays(bounds.start, preview.start);
+              const length = diffDays(preview.start, preview.due) + 1;
               return (
                 <div className="timeline-row" key={task.id}>
-                  <div className="timeline-row-label">
+                  <div className="timeline-row-label" style={{ width: LABEL_WIDTH }}>
                     <strong>{task.title.trim() || "Blank task"}</strong>
                     <span>
-                      {formatShortDate(task.timelineStart)} to {formatShortDate(task.timelineEnd)}
+                      {formatShortDate(preview.start)} to {formatShortDate(preview.due)}
                     </span>
                   </div>
-                  <div className="timeline-track">
+
+                  <div className="timeline-track-grid">
                     {columns.map((date) => (
                       <div
                         className={`timeline-cell ${date === todayIso() ? "is-today" : ""}`}
@@ -184,11 +198,12 @@ export function TimelineCalendar({
                         style={{ width: DAY_WIDTH }}
                       />
                     ))}
+
                     <div
                       className={`timeline-bar ${timelineColor(task)}`}
                       style={{
-                        left: previewLeft,
-                        width: previewWidth,
+                        left: offset * DAY_WIDTH,
+                        width: Math.max(DAY_WIDTH, length * DAY_WIDTH),
                       }}
                       onPointerDown={(event) => {
                         event.preventDefault();
@@ -210,13 +225,11 @@ export function TimelineCalendar({
                         if (!interaction || interaction.taskId !== task.id) {
                           return;
                         }
-                        const deltaX = event.clientX - interaction.startX;
-                        commitInteraction(task, deltaX);
+                        commitInteraction(task, event.clientX - interaction.startX);
                         setInteraction(null);
                         setLiveDelta(0);
                       }}
                     >
-                      <div className="timeline-bar-progress" />
                       <button
                         aria-label={`Adjust start date for ${task.title.trim() || "blank task"}`}
                         className="timeline-handle"
@@ -252,8 +265,7 @@ export function TimelineCalendar({
                           ) {
                             return;
                           }
-                          const deltaX = event.clientX - interaction.startX;
-                          commitInteraction(task, deltaX);
+                          commitInteraction(task, event.clientX - interaction.startX);
                           setInteraction(null);
                           setLiveDelta(0);
                         }}
@@ -264,7 +276,7 @@ export function TimelineCalendar({
                         <small>{length} days</small>
                       </div>
                       <button
-                        aria-label={`Adjust end date for ${task.title.trim() || "blank task"}`}
+                        aria-label={`Adjust due date for ${task.title.trim() || "blank task"}`}
                         className="timeline-handle"
                         onPointerDown={(event) => {
                           event.stopPropagation();
@@ -298,8 +310,7 @@ export function TimelineCalendar({
                           ) {
                             return;
                           }
-                          const deltaX = event.clientX - interaction.startX;
-                          commitInteraction(task, deltaX);
+                          commitInteraction(task, event.clientX - interaction.startX);
                           setInteraction(null);
                           setLiveDelta(0);
                         }}
@@ -310,9 +321,10 @@ export function TimelineCalendar({
                 </div>
               );
             })}
+
             {timelineTasks.length === 0 ? (
               <div className="timeline-empty">
-                Add a start and end date to any task to see it here.
+                Add a start date and due date on any task to show it on this calendar.
               </div>
             ) : null}
           </div>

@@ -26,11 +26,11 @@ export function getTaskSection(task: Task): TaskSection {
 export function createTask(draft: TaskDraft, sortOrder: number): Task {
   const now = new Date().toISOString();
   const timelineStart = draft.timelineStart ?? null;
-  const timelineEnd = draft.timelineEnd ?? null;
+  const dueDate = draft.dueDate ?? draft.timelineEnd ?? null;
   const range =
-    timelineStart && timelineEnd
-      ? clampDateRange(timelineStart, timelineEnd)
-      : { start: timelineStart, end: timelineEnd };
+    timelineStart && dueDate
+      ? clampDateRange(timelineStart, dueDate)
+      : { start: timelineStart, end: dueDate };
 
   const status = draft.status ?? DEFAULT_STATUS;
 
@@ -39,7 +39,7 @@ export function createTask(draft: TaskDraft, sortOrder: number): Task {
     title: draft.title ?? "",
     status,
     priority: draft.priority ?? DEFAULT_PRIORITY,
-    dueDate: draft.dueDate ?? null,
+    dueDate: range.end ?? null,
     timelineStart: range.start ?? null,
     timelineEnd: range.end ?? null,
     lastActiveStatus: toLastActiveStatus(status),
@@ -57,9 +57,8 @@ export function seedTasks(): Task[] {
         title: "Align product goals",
         status: "working",
         priority: "high",
-        dueDate: addDays(today, 2),
+        dueDate: addDays(today, 4),
         timelineStart: today,
-        timelineEnd: addDays(today, 4),
       },
       0,
     ),
@@ -68,9 +67,8 @@ export function seedTasks(): Task[] {
         title: "Draft launch checklist",
         status: "stuck",
         priority: "medium",
-        dueDate: addDays(today, 5),
+        dueDate: addDays(today, 6),
         timelineStart: addDays(today, 1),
-        timelineEnd: addDays(today, 6),
       },
       1,
     ),
@@ -79,9 +77,8 @@ export function seedTasks(): Task[] {
         title: "Prepare onboarding notes",
         status: "working",
         priority: "low",
-        dueDate: addDays(today, 7),
+        dueDate: addDays(today, 8),
         timelineStart: addDays(today, 3),
-        timelineEnd: addDays(today, 8),
       },
       2,
     ),
@@ -90,9 +87,8 @@ export function seedTasks(): Task[] {
         title: "Archive previous sprint",
         status: "done",
         priority: "medium",
-        dueDate: addDays(today, -1),
+        dueDate: addDays(today, -2),
         timelineStart: addDays(today, -6),
-        timelineEnd: addDays(today, -2),
       },
       0,
     ),
@@ -138,9 +134,9 @@ export function normalizeTasks(tasks: Task[]) {
       status,
       priority,
       title: task.title ?? "",
-      dueDate: task.dueDate ?? null,
+      dueDate: task.dueDate ?? task.timelineEnd ?? null,
       timelineStart: task.timelineStart ?? null,
-      timelineEnd: task.timelineEnd ?? null,
+      timelineEnd: task.dueDate ?? task.timelineEnd ?? null,
       lastActiveStatus,
     });
   });
@@ -209,13 +205,18 @@ export function updateTask(tasks: Task[], taskId: string, patch: Partial<Task>) 
       updatedAt: new Date().toISOString(),
     };
 
+    if (patch.dueDate !== undefined) {
+      nextTask.timelineEnd = patch.dueDate;
+    }
+
     if (status !== "done") {
       nextTask.lastActiveStatus = status;
     }
 
-    if (nextTask.timelineStart && nextTask.timelineEnd) {
-      const range = clampDateRange(nextTask.timelineStart, nextTask.timelineEnd);
+    if (nextTask.timelineStart && nextTask.dueDate) {
+      const range = clampDateRange(nextTask.timelineStart, nextTask.dueDate);
       nextTask.timelineStart = range.start;
+      nextTask.dueDate = range.end;
       nextTask.timelineEnd = range.end;
     }
 
@@ -232,17 +233,19 @@ export function deleteTask(tasks: Task[], taskId: string) {
 export function moveTimeline(
   task: Task,
   deltaDays: number,
-): Pick<Task, "timelineStart" | "timelineEnd"> {
-  if (!task.timelineStart || !task.timelineEnd) {
+): Pick<Task, "timelineStart" | "timelineEnd" | "dueDate"> {
+  if (!task.timelineStart || !task.dueDate) {
     return {
       timelineStart: task.timelineStart,
-      timelineEnd: task.timelineEnd,
+      dueDate: task.dueDate,
+      timelineEnd: task.dueDate,
     };
   }
 
   return {
     timelineStart: addDays(task.timelineStart, deltaDays),
-    timelineEnd: addDays(task.timelineEnd, deltaDays),
+    dueDate: addDays(task.dueDate, deltaDays),
+    timelineEnd: addDays(task.dueDate, deltaDays),
   };
 }
 
@@ -250,28 +253,30 @@ export function resizeTimeline(
   task: Task,
   edge: "start" | "end",
   deltaDays: number,
-): Pick<Task, "timelineStart" | "timelineEnd"> {
-  if (!task.timelineStart || !task.timelineEnd) {
+): Pick<Task, "timelineStart" | "timelineEnd" | "dueDate"> {
+  if (!task.timelineStart || !task.dueDate) {
     return {
       timelineStart: task.timelineStart,
-      timelineEnd: task.timelineEnd,
+      dueDate: task.dueDate,
+      timelineEnd: task.dueDate,
     };
   }
 
   const start =
     edge === "start" ? addDays(task.timelineStart, deltaDays) : task.timelineStart;
-  const end = edge === "end" ? addDays(task.timelineEnd, deltaDays) : task.timelineEnd;
+  const end = edge === "end" ? addDays(task.dueDate, deltaDays) : task.dueDate;
   const range = clampDateRange(start, end);
   return {
     timelineStart: range.start,
+    dueDate: range.end,
     timelineEnd: range.end,
   };
 }
 
 export function timelineDuration(task: Task) {
-  if (!task.timelineStart || !task.timelineEnd) {
+  if (!task.timelineStart || !task.dueDate) {
     return 0;
   }
 
-  return diffDays(task.timelineStart, task.timelineEnd) + 1;
+  return diffDays(task.timelineStart, task.dueDate) + 1;
 }

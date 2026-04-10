@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { formatShortDate } from "../lib/date";
+import { diffDays, formatShortDate, todayIso } from "../lib/date";
 import type { Task, TaskPriority, TaskStatus } from "../types/tasks";
 
 const STATUS_OPTIONS: TaskStatus[] = ["working", "stuck", "done"];
@@ -25,10 +25,17 @@ export function TaskRow({
   onDragEnd: () => void;
 }) {
   const taskLabel = task.title.trim() || "blank task";
-  const timelineReady = Boolean(task.timelineStart && task.timelineEnd);
-  const progressWidth = task.timelineStart && task.timelineEnd && task.dueDate
-    ? `${Math.max(12, Math.min(100, ((new Date(task.dueDate).getTime() - new Date(task.timelineStart).getTime()) / (new Date(task.timelineEnd).getTime() - new Date(task.timelineStart).getTime() || 1)) * 100))}%`
-    : "58%";
+  const timelineReady = Boolean(task.timelineStart && task.dueDate);
+  const progressWidth = (() => {
+    if (!task.timelineStart || !task.dueDate) {
+      return "0%";
+    }
+
+    const totalDays = Math.max(1, diffDays(task.timelineStart, task.dueDate));
+    const elapsedDays = diffDays(task.timelineStart, todayIso());
+    const ratio = Math.min(1, Math.max(0, (elapsedDays + 1) / (totalDays + 1)));
+    return `${Math.round(ratio * 100)}%`;
+  })();
 
   return (
     <tr
@@ -107,7 +114,7 @@ export function TaskRow({
             </div>
             <span className="timeline-mini-label">
               {timelineReady
-                ? `${formatShortDate(task.timelineStart)} to ${formatShortDate(task.timelineEnd)}`
+                ? `${formatShortDate(task.timelineStart)} to ${formatShortDate(task.dueDate)}`
                 : "Set a range"}
             </span>
           </div>
@@ -120,16 +127,6 @@ export function TaskRow({
               }
               type="date"
               value={task.timelineStart ?? ""}
-            />
-            <span className="timeline-separator">to</span>
-            <input
-              aria-label={`Timeline end for ${taskLabel}`}
-              className="row-input"
-              onChange={(event) =>
-                onFieldChange({ timelineEnd: event.target.value || null })
-              }
-              type="date"
-              value={task.timelineEnd ?? ""}
             />
           </div>
         </div>

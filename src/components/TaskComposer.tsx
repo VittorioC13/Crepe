@@ -12,7 +12,6 @@ const EMPTY_DRAFT: TaskDraft = {
   priority: "medium",
   dueDate: null,
   timelineStart: null,
-  timelineEnd: null,
 };
 
 export function TaskComposer({
@@ -121,7 +120,7 @@ export function TaskComposer({
             </label>
           </div>
 
-          <div className="composer-grid">
+          <div className="composer-grid composer-grid-dual">
             <label className="composer-field">
               <span>Due date</span>
               <input
@@ -151,22 +150,6 @@ export function TaskComposer({
                 }
                 type="date"
                 value={draft.timelineStart ?? ""}
-              />
-            </label>
-
-            <label className="composer-field">
-              <span>Timeline end</span>
-              <input
-                aria-label="New task timeline end"
-                className="row-input"
-                onChange={(event) =>
-                  setDraft((current) => ({
-                    ...current,
-                    timelineEnd: event.target.value || null,
-                  }))
-                }
-                type="date"
-                value={draft.timelineEnd ?? ""}
               />
             </label>
           </div>

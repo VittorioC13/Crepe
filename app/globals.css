@@ -349,10 +349,7 @@ h1 {
 }
 
 .timeline-inputs {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  gap: 10px;
-  align-items: center;
+  display: block;
 }
 
 .timeline-stack {
@@ -406,15 +403,27 @@ h1 {
 }
 
 .timeline-shell {
-  min-width: 1080px;
+  min-width: 1180px;
 }
 
 .timeline-axis {
-  position: sticky;
-  top: 0;
-  z-index: 2;
   background: linear-gradient(180deg, rgba(255, 251, 245, 0.96), rgba(255, 251, 245, 0.88));
   border-bottom: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+
+.timeline-axis-row {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  align-items: end;
+}
+
+.timeline-axis-spacer {
+  width: 320px;
+}
+
+.timeline-axis-track {
+  min-width: 0;
 }
 
 .timeline-months,
@@ -429,15 +438,16 @@ h1 {
 }
 
 .timeline-month {
-  padding: 0 0 8px;
+  padding: 0 0 8px 8px;
   color: var(--muted);
 }
 
 .timeline-day {
-  padding: 8px 0 14px;
+  padding: 10px 0 12px;
   text-align: center;
   color: var(--muted);
   border-right: 1px solid rgba(95, 88, 78, 0.08);
+  border-left: 1px solid rgba(95, 88, 78, 0.03);
 }
 
 .timeline-grid {
@@ -448,7 +458,7 @@ h1 {
   display: grid;
   grid-template-columns: 320px 1fr;
   border-bottom: 1px solid var(--border);
-  min-height: 92px;
+  min-height: 86px;
 }
 
 .timeline-row-label {
@@ -465,15 +475,17 @@ h1 {
 }
 
 .timeline-track {
+  display: none;
+}
+
+.timeline-track-grid {
   position: relative;
   display: flex;
-  align-items: center;
-  background:
-    linear-gradient(180deg, transparent 40%, rgba(95, 88, 78, 0.06) 40%, rgba(95, 88, 78, 0.06) 60%, transparent 60%);
+  align-items: stretch;
 }
 
 .timeline-cell {
-  height: 92px;
+  height: 86px;
   border-right: 1px solid rgba(95, 88, 78, 0.08);
 }
 
@@ -484,9 +496,9 @@ h1 {
 
 .timeline-bar {
   position: absolute;
-  height: 26px;
+  height: 34px;
   border-radius: 999px;
-  top: 33px;
+  top: 26px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -596,5 +608,14 @@ h1 {
   .timeline-shell,
   .task-table {
     min-width: 980px;
+  }
+
+  .timeline-axis-row,
+  .timeline-row {
+    grid-template-columns: 260px 1fr;
+  }
+
+  .timeline-axis-spacer {
+    width: 260px;
   }
 }
