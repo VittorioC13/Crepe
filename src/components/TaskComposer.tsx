@@ -29,7 +29,7 @@ export function TaskComposer({
   }
 
   return (
-    <>
+    <div className="task-composer-shell">
       <button
         className="primary-button"
         onClick={() => setIsOpen(true)}
@@ -39,157 +39,148 @@ export function TaskComposer({
       </button>
 
       {isOpen ? (
-        <div
-          className="composer-overlay"
-          onClick={(event) => {
-            if (event.target === event.currentTarget) {
-              closeComposer();
-            }
+        <form
+          aria-label="Create task"
+          className="composer-card"
+          onSubmit={(event) => {
+            event.preventDefault();
+            onCreate(draft);
+            closeComposer();
           }}
         >
-          <form
-            aria-label="Create task"
-            className="composer-modal"
-            onSubmit={(event) => {
-              event.preventDefault();
-              onCreate(draft);
-              closeComposer();
-            }}
-          >
-            <div className="composer-head">
-              <div>
-                <p className="eyebrow">New task</p>
-                <h3>Add a clear next step</h3>
-              </div>
-              <button
-                aria-label="Close new task dialog"
-                className="ghost-button composer-close"
-                onClick={closeComposer}
-                type="button"
-              >
-                Close
-              </button>
+          <div className="composer-head">
+            <div>
+              <p className="eyebrow">New task</p>
+              <h3>Add a clear next step</h3>
             </div>
+            <button
+              aria-label="Close new task dialog"
+              className="ghost-button composer-close"
+              onClick={closeComposer}
+              type="button"
+            >
+              Close
+            </button>
+          </div>
+
+          <label className="composer-field">
+            <span>Task</span>
+            <input
+              aria-label="New task title"
+              autoFocus
+              className="task-composer-input"
+              onChange={(event) =>
+                setDraft((current) => ({ ...current, title: event.target.value }))
+              }
+              placeholder="What needs to get done?"
+              value={draft.title ?? ""}
+            />
+          </label>
+
+          <div className="composer-grid composer-grid-dual">
+            <label className="composer-field">
+              <span>Status</span>
+              <select
+                aria-label="New task status"
+                className={`row-select status-chip status-${draft.status ?? "working"}`}
+                onChange={(event) =>
+                  setDraft((current) => ({
+                    ...current,
+                    status: event.target.value as TaskStatus,
+                  }))
+                }
+                value={draft.status ?? "working"}
+              >
+                {STATUS_OPTIONS.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </label>
 
             <label className="composer-field">
-              <span>Task</span>
-              <input
-                aria-label="New task title"
-                autoFocus
-                className="task-composer-input"
+              <span>Priority</span>
+              <select
+                aria-label="New task priority"
+                className={`row-select priority-chip priority-${draft.priority ?? "medium"}`}
                 onChange={(event) =>
-                  setDraft((current) => ({ ...current, title: event.target.value }))
+                  setDraft((current) => ({
+                    ...current,
+                    priority: event.target.value as TaskPriority,
+                  }))
                 }
-                placeholder="What needs to get done?"
-                value={draft.title ?? ""}
+                value={draft.priority ?? "medium"}
+              >
+                {PRIORITY_OPTIONS.map((priority) => (
+                  <option key={priority} value={priority}>
+                    {priority}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="composer-grid">
+            <label className="composer-field">
+              <span>Due date</span>
+              <input
+                aria-label="New task due date"
+                className="row-input"
+                onChange={(event) =>
+                  setDraft((current) => ({
+                    ...current,
+                    dueDate: event.target.value || null,
+                  }))
+                }
+                type="date"
+                value={draft.dueDate ?? ""}
               />
             </label>
 
-            <div className="composer-grid">
-              <label className="composer-field">
-                <span>Status</span>
-                <select
-                  aria-label="New task status"
-                  className={`row-select status-chip status-${draft.status ?? "working"}`}
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      status: event.target.value as TaskStatus,
-                    }))
-                  }
-                  value={draft.status ?? "working"}
-                >
-                  {STATUS_OPTIONS.map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-              </label>
+            <label className="composer-field">
+              <span>Timeline start</span>
+              <input
+                aria-label="New task timeline start"
+                className="row-input"
+                onChange={(event) =>
+                  setDraft((current) => ({
+                    ...current,
+                    timelineStart: event.target.value || null,
+                  }))
+                }
+                type="date"
+                value={draft.timelineStart ?? ""}
+              />
+            </label>
 
-              <label className="composer-field">
-                <span>Priority</span>
-                <select
-                  aria-label="New task priority"
-                  className={`row-select priority-chip priority-${draft.priority ?? "medium"}`}
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      priority: event.target.value as TaskPriority,
-                    }))
-                  }
-                  value={draft.priority ?? "medium"}
-                >
-                  {PRIORITY_OPTIONS.map((priority) => (
-                    <option key={priority} value={priority}>
-                      {priority}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
+            <label className="composer-field">
+              <span>Timeline end</span>
+              <input
+                aria-label="New task timeline end"
+                className="row-input"
+                onChange={(event) =>
+                  setDraft((current) => ({
+                    ...current,
+                    timelineEnd: event.target.value || null,
+                  }))
+                }
+                type="date"
+                value={draft.timelineEnd ?? ""}
+              />
+            </label>
+          </div>
 
-            <div className="composer-grid">
-              <label className="composer-field">
-                <span>Due date</span>
-                <input
-                  aria-label="New task due date"
-                  className="row-input"
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      dueDate: event.target.value || null,
-                    }))
-                  }
-                  type="date"
-                  value={draft.dueDate ?? ""}
-                />
-              </label>
-
-              <label className="composer-field">
-                <span>Timeline start</span>
-                <input
-                  aria-label="New task timeline start"
-                  className="row-input"
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      timelineStart: event.target.value || null,
-                    }))
-                  }
-                  type="date"
-                  value={draft.timelineStart ?? ""}
-                />
-              </label>
-
-              <label className="composer-field">
-                <span>Timeline end</span>
-                <input
-                  aria-label="New task timeline end"
-                  className="row-input"
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      timelineEnd: event.target.value || null,
-                    }))
-                  }
-                  type="date"
-                  value={draft.timelineEnd ?? ""}
-                />
-              </label>
-            </div>
-
-            <div className="composer-actions">
-              <button className="ghost-button" onClick={closeComposer} type="button">
-                Cancel
-              </button>
-              <button className="primary-button" type="submit">
-                Add task
-              </button>
-            </div>
-          </form>
-        </div>
+          <div className="composer-actions">
+            <button className="ghost-button" onClick={closeComposer} type="button">
+              Cancel
+            </button>
+            <button className="primary-button" type="submit">
+              Add task
+            </button>
+          </div>
+        </form>
       ) : null}
-    </>
+    </div>
   );
 }
