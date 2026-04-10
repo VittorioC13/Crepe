@@ -94,6 +94,25 @@ export function TaskTable({
                     task={task}
                   />
                 ))}
+                {section.tasks.length === 0 ? (
+                  <tr className="empty-section-row">
+                    <td colSpan={6}>
+                      <div
+                        className="empty-section-drop"
+                        onDragOver={(event) => event.preventDefault()}
+                        onDrop={() => {
+                          if (!dragState) {
+                            return;
+                          }
+                          onReorderTask(dragState.taskId, section.key, 0);
+                          setDragState(null);
+                        }}
+                      >
+                        Drop task here
+                      </div>
+                    </td>
+                  </tr>
+                ) : null}
               </tbody>
             </table>
           </div>

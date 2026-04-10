@@ -40,14 +40,24 @@ export function TaskRow({
   return (
     <tr
       className={`task-row ${isDragging ? "is-dragging" : ""}`}
-      draggable
-      onDragEnd={onDragEnd}
       onDragOver={(event) => event.preventDefault()}
-      onDragStart={onDragStart}
       onDrop={onDropAbove}
     >
       <td className="drag-cell" aria-hidden="true">
-        <span className="drag-handle">⋮⋮</span>
+        <button
+          aria-label={`Drag ${taskLabel}`}
+          className="drag-handle-button"
+          draggable
+          onDragEnd={onDragEnd}
+          onDragStart={(event) => {
+            event.dataTransfer.effectAllowed = "move";
+            event.dataTransfer.setData("text/plain", task.id);
+            onDragStart();
+          }}
+          type="button"
+        >
+          <span className="drag-handle">⋮⋮</span>
+        </button>
       </td>
       <td>
         <input

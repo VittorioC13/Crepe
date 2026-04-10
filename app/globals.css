@@ -313,6 +313,19 @@ h1 {
   letter-spacing: -0.18em;
 }
 
+.drag-handle-button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: grab;
+  padding: 0;
+  width: 100%;
+}
+
+.drag-handle-button:active {
+  cursor: grabbing;
+}
+
 .status-chip,
 .priority-chip {
   text-transform: capitalize;
@@ -390,6 +403,20 @@ h1 {
 
 .row-meta-compact {
   min-width: 96px;
+}
+
+.empty-section-row td {
+  padding: 10px 12px 16px;
+}
+
+.empty-section-drop {
+  border: 1px dashed rgba(95, 88, 78, 0.24);
+  border-radius: 14px;
+  min-height: 54px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 0.95rem;
 }
 
 .timeline-header {
