@@ -126,19 +126,23 @@ h1 {
   inset: 0;
   background: rgba(46, 42, 37, 0.18);
   backdrop-filter: blur(8px);
-  display: grid;
-  place-items: center;
-  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 32px 20px;
   z-index: 30;
 }
 
 .composer-modal {
   width: min(720px, 100%);
+  max-height: min(820px, calc(100vh - 64px));
   border: 1px solid var(--border);
   border-radius: 28px;
   background: rgba(255, 251, 245, 0.97);
   box-shadow: 0 28px 80px rgba(84, 69, 55, 0.18);
   padding: 24px;
+  overflow-y: auto;
 }
 
 .composer-head,
@@ -579,6 +583,15 @@ h1 {
 
   .composer-grid {
     grid-template-columns: 1fr;
+  }
+
+  .composer-overlay {
+    padding: 18px 12px;
+  }
+
+  .composer-modal {
+    max-height: calc(100vh - 36px);
+    padding: 18px;
   }
 
   .timeline-row-label {
