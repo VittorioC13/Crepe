@@ -196,6 +196,140 @@ h1 {
   padding: 10px 14px;
 }
 
+.date-range-field {
+  position: relative;
+}
+
+.date-range-trigger {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--text);
+  min-height: 44px;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.date-range-field.is-compact .date-range-trigger {
+  min-height: 40px;
+  padding: 8px 10px;
+}
+
+.date-range-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-range-sep {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.date-range-icon {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.date-range-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: min(520px, 95vw);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255, 251, 245, 0.99);
+  box-shadow: 0 20px 52px rgba(84, 69, 55, 0.18);
+  padding: 14px;
+  z-index: 25;
+}
+
+.date-range-popover-head,
+.date-range-summary,
+.date-range-nav,
+.date-range-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.date-range-popover-head span,
+.date-range-summary {
+  color: var(--muted);
+}
+
+.date-range-summary {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 10px;
+  margin-top: 8px;
+}
+
+.date-range-nav {
+  margin-top: 10px;
+}
+
+.date-nav-btn {
+  min-height: 34px;
+  padding: 0 12px;
+}
+
+.date-weekdays,
+.date-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.date-weekdays {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.date-weekdays span {
+  text-align: center;
+}
+
+.date-grid {
+  margin-top: 8px;
+}
+
+.date-cell {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  min-height: 36px;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.date-cell.is-muted {
+  color: rgba(114, 105, 94, 0.42);
+}
+
+.date-cell.is-selected {
+  background: rgba(128, 154, 199, 0.22);
+}
+
+.date-cell.is-start,
+.date-cell.is-due {
+  background: #7f98c3;
+  color: #fefcf7;
+}
+
+.date-range-actions {
+  margin-top: 12px;
+}
+
 .row-title {
   min-width: 220px;
 }
@@ -363,6 +497,17 @@ h1 {
 
 .timeline-inputs {
   display: block;
+}
+
+.due-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.52);
+  color: var(--muted);
 }
 
 .timeline-stack {
@@ -626,6 +771,10 @@ h1 {
 
   .composer-grid {
     grid-template-columns: 1fr;
+  }
+
+  .date-range-popover {
+    width: min(420px, 92vw);
   }
 
   .timeline-row-label {

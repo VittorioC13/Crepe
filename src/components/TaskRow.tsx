@@ -2,6 +2,7 @@
 
 import React from "react";
 import { diffDays, formatShortDate, todayIso } from "../lib/date";
+import { DateRangePicker } from "./DateRangePicker";
 import type { Task, TaskPriority, TaskStatus } from "../types/tasks";
 
 const STATUS_OPTIONS: TaskStatus[] = ["working", "stuck", "done"];
@@ -85,15 +86,7 @@ export function TaskRow({
         </select>
       </td>
       <td>
-        <input
-          aria-label={`Due date for ${taskLabel}`}
-          className={`row-input ${task.dueDate ? "" : "row-muted"}`}
-          onChange={(event) =>
-            onFieldChange({ dueDate: event.target.value || null })
-          }
-          type="date"
-          value={task.dueDate ?? ""}
-        />
+        <span className="due-pill">{formatShortDate(task.dueDate)}</span>
       </td>
       <td>
         <select
@@ -129,14 +122,19 @@ export function TaskRow({
             </span>
           </div>
           <div className="timeline-inputs">
-            <input
-              aria-label={`Timeline start for ${taskLabel}`}
-              className="row-input"
-              onChange={(event) =>
-                onFieldChange({ timelineStart: event.target.value || null })
+            <DateRangePicker
+              ariaLabel={`Schedule for ${taskLabel}`}
+              compact
+              onChange={(next) =>
+                onFieldChange({
+                  timelineStart: next.start,
+                  dueDate: next.due,
+                })
               }
-              type="date"
-              value={task.timelineStart ?? ""}
+              value={{
+                start: task.timelineStart ?? null,
+                due: task.dueDate ?? null,
+              }}
             />
           </div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { DateRangePicker } from "./DateRangePicker";
 import type { TaskDraft, TaskPriority, TaskStatus } from "../types/tasks";
 
 const STATUS_OPTIONS: TaskStatus[] = ["working", "stuck", "done"];
@@ -120,36 +121,22 @@ export function TaskComposer({
             </label>
           </div>
 
-          <div className="composer-grid composer-grid-dual">
+          <div className="composer-grid">
             <label className="composer-field">
-              <span>Due date</span>
-              <input
-                aria-label="New task due date"
-                className="row-input"
-                onChange={(event) =>
+              <span>Schedule</span>
+              <DateRangePicker
+                ariaLabel="New task schedule"
+                onChange={(next) =>
                   setDraft((current) => ({
                     ...current,
-                    dueDate: event.target.value || null,
+                    timelineStart: next.start,
+                    dueDate: next.due,
                   }))
                 }
-                type="date"
-                value={draft.dueDate ?? ""}
-              />
-            </label>
-
-            <label className="composer-field">
-              <span>Timeline start</span>
-              <input
-                aria-label="New task timeline start"
-                className="row-input"
-                onChange={(event) =>
-                  setDraft((current) => ({
-                    ...current,
-                    timelineStart: event.target.value || null,
-                  }))
-                }
-                type="date"
-                value={draft.timelineStart ?? ""}
+                value={{
+                  start: draft.timelineStart ?? null,
+                  due: draft.dueDate ?? null,
+                }}
               />
             </label>
           </div>
