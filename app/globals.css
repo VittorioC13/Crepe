@@ -505,6 +505,7 @@ h1 {
 
 .timeline-inputs {
   display: block;
+  margin-top: 6px;
 }
 
 .due-pill {
@@ -526,6 +527,15 @@ h1 {
 .timeline-mini {
   display: grid;
   gap: 8px;
+}
+
+.timeline-mini-trigger {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
 }
 
 .timeline-mini-track {

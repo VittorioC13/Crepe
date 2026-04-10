@@ -25,6 +25,7 @@ export function TaskRow({
   onDragStart: () => void;
   onDragEnd: () => void;
 }) {
+  const [isRangeOpen, setIsRangeOpen] = React.useState(false);
   const taskLabel = task.title.trim() || "blank task";
   const timelineReady = Boolean(task.timelineStart && task.dueDate);
   const progressWidth = (() => {
@@ -107,25 +108,34 @@ export function TaskRow({
       <td>
         <div className="timeline-stack">
           <div className={`timeline-mini ${timelineReady ? "is-ready" : "is-empty"}`}>
-            <div className="timeline-mini-track">
-              {timelineReady ? (
-                <div
-                  className={`timeline-mini-fill timeline-${task.status}`}
-                  style={{ width: progressWidth }}
-                />
-              ) : null}
-            </div>
-            <span className="timeline-mini-label">
-              {timelineReady
-                ? `${formatShortDate(task.timelineStart)} to ${formatShortDate(task.dueDate)}`
-                : "Set a range"}
-            </span>
+            <button
+              aria-label={`Edit schedule for ${taskLabel}`}
+              className="timeline-mini-trigger"
+              onClick={() => setIsRangeOpen(true)}
+              type="button"
+            >
+              <div className="timeline-mini-track">
+                {timelineReady ? (
+                  <div
+                    className={`timeline-mini-fill timeline-${task.status}`}
+                    style={{ width: progressWidth }}
+                  />
+                ) : null}
+              </div>
+              <span className="timeline-mini-label">
+                {timelineReady
+                  ? `${formatShortDate(task.timelineStart)} to ${formatShortDate(task.dueDate)}`
+                  : "Click timeline to set range"}
+              </span>
+            </button>
           </div>
           <div className="timeline-inputs">
             <DateRangePicker
               ariaLabel={`Schedule for ${taskLabel}`}
               compact
-              minimal
+              hideTrigger
+              onOpenChange={setIsRangeOpen}
+              open={isRangeOpen}
               onChange={(next) =>
                 onFieldChange({
                   timelineStart: next.start,

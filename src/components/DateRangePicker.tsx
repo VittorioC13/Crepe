@@ -19,6 +19,9 @@ type Props = {
   ariaLabel: string;
   compact?: boolean;
   minimal?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 };
 
 const WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
@@ -58,8 +61,18 @@ export function DateRangePicker({
   ariaLabel,
   compact = false,
   minimal = false,
+  open: controlledOpen,
+  onOpenChange,
+  hideTrigger = false,
 }: Props) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = (next: boolean) => {
+    onOpenChange?.(next);
+    if (controlledOpen === undefined) {
+      setInternalOpen(next);
+    }
+  };
   const [monthIso, setMonthIso] = useState(() => {
     const base = value.start ?? value.due ?? todayIso();
     const date = parseIsoDate(base);
@@ -96,23 +109,25 @@ export function DateRangePicker({
       className={`date-range-field ${compact ? "is-compact" : ""} ${minimal ? "is-minimal" : ""}`}
       ref={rootRef}
     >
-      <button
-        aria-label={ariaLabel}
-        className="date-range-trigger"
-        onClick={() => setOpen((current) => !current)}
-        type="button"
-      >
-        {minimal ? (
-          <span className="date-range-title">Set dates</span>
-        ) : (
-          <span className="date-range-title">
-            {value.start ? formatShortDate(value.start) : "Start date"}
-            <span className="date-range-sep">to</span>
-            {value.due ? formatShortDate(value.due) : "Due date"}
-          </span>
-        )}
-        <span className="date-range-icon">Set</span>
-      </button>
+      {!hideTrigger ? (
+        <button
+          aria-label={ariaLabel}
+          className="date-range-trigger"
+          onClick={() => setOpen(!open)}
+          type="button"
+        >
+          {minimal ? (
+            <span className="date-range-title">Set dates</span>
+          ) : (
+            <span className="date-range-title">
+              {value.start ? formatShortDate(value.start) : "Start date"}
+              <span className="date-range-sep">to</span>
+              {value.due ? formatShortDate(value.due) : "Due date"}
+            </span>
+          )}
+          <span className="date-range-icon">Set</span>
+        </button>
+      ) : null}
 
       {open ? (
         <div className="date-range-popover" role="dialog">
