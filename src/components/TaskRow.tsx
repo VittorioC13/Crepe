@@ -125,6 +125,7 @@ export function TaskRow({
             <DateRangePicker
               ariaLabel={`Schedule for ${taskLabel}`}
               compact
+              minimal
               onChange={(next) =>
                 onFieldChange({
                   timelineStart: next.start,
@@ -140,7 +141,6 @@ export function TaskRow({
         </div>
       </td>
       <td className="row-meta row-meta-compact">
-        <span>{formatShortDate(task.dueDate)}</span>
         <button
           aria-label={`Delete ${taskLabel}`}
           className="icon-button danger-button"

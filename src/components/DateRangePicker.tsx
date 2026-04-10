@@ -18,6 +18,7 @@ type Props = {
   onChange: (next: { start: string | null; due: string | null }) => void;
   ariaLabel: string;
   compact?: boolean;
+  minimal?: boolean;
 };
 
 const WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
@@ -51,7 +52,13 @@ function inRange(day: string, start: string | null, due: string | null) {
   return day >= start && day <= due;
 }
 
-export function DateRangePicker({ value, onChange, ariaLabel, compact = false }: Props) {
+export function DateRangePicker({
+  value,
+  onChange,
+  ariaLabel,
+  compact = false,
+  minimal = false,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [monthIso, setMonthIso] = useState(() => {
     const base = value.start ?? value.due ?? todayIso();
@@ -85,18 +92,25 @@ export function DateRangePicker({ value, onChange, ariaLabel, compact = false }:
       : 0;
 
   return (
-    <div className={`date-range-field ${compact ? "is-compact" : ""}`} ref={rootRef}>
+    <div
+      className={`date-range-field ${compact ? "is-compact" : ""} ${minimal ? "is-minimal" : ""}`}
+      ref={rootRef}
+    >
       <button
         aria-label={ariaLabel}
         className="date-range-trigger"
         onClick={() => setOpen((current) => !current)}
         type="button"
       >
-        <span className="date-range-title">
-          {value.start ? formatShortDate(value.start) : "Start date"}
-          <span className="date-range-sep">to</span>
-          {value.due ? formatShortDate(value.due) : "Due date"}
-        </span>
+        {minimal ? (
+          <span className="date-range-title">Set dates</span>
+        ) : (
+          <span className="date-range-title">
+            {value.start ? formatShortDate(value.start) : "Start date"}
+            <span className="date-range-sep">to</span>
+            {value.due ? formatShortDate(value.due) : "Due date"}
+          </span>
+        )}
         <span className="date-range-icon">Set</span>
       </button>
 

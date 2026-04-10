@@ -220,6 +220,14 @@ h1 {
   padding: 8px 10px;
 }
 
+.date-range-field.is-minimal .date-range-trigger {
+  justify-content: center;
+}
+
+.date-range-field.is-minimal .date-range-icon {
+  display: none;
+}
+
 .date-range-title {
   display: inline-flex;
   align-items: center;
