@@ -12,8 +12,8 @@ export function TaskBoardShell() {
     <main className="app-shell">
       <section className="hero-card">
         <div>
-          <p className="eyebrow">Musashi</p>
-          <h1>A quieter way to manage work.</h1>
+          <p className="eyebrow">Crepe</p>
+          <h1>Be Quiet, and work.</h1>
           <p className="hero-copy">
             A focused table for tasks, a timeline for momentum, and none of the
             dashboard noise.

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Musashi",
+  title: "Crepe",
   description: "A minimalist project management workspace.",
 };
 

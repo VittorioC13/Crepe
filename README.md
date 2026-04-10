@@ -1,4 +1,4 @@
-# Musashi
+# Crepe
 
 A minimalist project management app inspired by Monday.com, rebuilt with a calmer visual language.
 
