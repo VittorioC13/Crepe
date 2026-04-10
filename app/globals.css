@@ -115,6 +115,16 @@ h1 {
   margin-bottom: 20px;
 }
 
+.panel-header-task {
+  display: block;
+}
+
+.panel-header-main {
+  display: grid;
+  gap: 12px;
+  max-width: 960px;
+}
+
 .task-composer {
   display: flex;
   gap: 12px;

@@ -36,12 +36,11 @@ export function TaskTable({
 
   return (
     <div className="panel">
-      <div className="panel-header">
-        <div>
+      <div className="panel-header panel-header-task">
+        <div className="panel-header-main">
           <p className="eyebrow">Main table</p>
-          <h2>Tasks</h2>
+          <TaskComposer onCreate={onAddTask} />
         </div>
-        <TaskComposer onCreate={onAddTask} />
       </div>
 
       {sections.map((section) => (
