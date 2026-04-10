@@ -521,12 +521,12 @@ h1 {
 
 .timeline-stack {
   display: grid;
-  gap: 10px;
+  gap: 16px;
 }
 
 .timeline-mini {
   display: grid;
-  gap: 8px;
+  gap: 14px;
 }
 
 .timeline-mini-trigger {
@@ -555,6 +555,7 @@ h1 {
 .timeline-separator,
 .row-meta {
   color: var(--muted);
+  line-height: 1.25;
 }
 
 .row-meta {
