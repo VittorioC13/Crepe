@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { TaskComposer } from "./TaskComposer";
 import { TaskRow } from "./TaskRow";
-import type { Task, TaskSection } from "../types/tasks";
+import type { Task, TaskDraft, TaskSection } from "../types/tasks";
 
 type DragState = {
   taskId: string;
@@ -20,7 +20,7 @@ export function TaskTable({
 }: {
   todo: Task[];
   completed: Task[];
-  onAddTask: (title: string) => void;
+  onAddTask: (draft: TaskDraft) => void;
   onDeleteTask: (taskId: string) => void;
   onReorderTask: (taskId: string, targetSection: TaskSection, targetIndex: number) => void;
   onUpdateTask: (taskId: string, patch: Partial<Task>) => void;
@@ -51,19 +51,6 @@ export function TaskTable({
             <span>{section.tasks.length} tasks</span>
           </div>
 
-          <div
-            className="drop-zone"
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={() => {
-              if (!dragState) {
-                return;
-              }
-
-              onReorderTask(dragState.taskId, section.key, 0);
-              setDragState(null);
-            }}
-          />
-
           <div className="table-scroll">
             <table className="task-table">
               <thead>
@@ -74,10 +61,19 @@ export function TaskTable({
                   <th>Due date</th>
                   <th>Priority</th>
                   <th>Timeline</th>
-                  <th>Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={() => {
+                  if (!dragState) {
+                    return;
+                  }
+
+                  onReorderTask(dragState.taskId, section.key, section.tasks.length);
+                  setDragState(null);
+                }}
+              >
                 {section.tasks.map((task, index) => (
                   <TaskRow
                     isDragging={dragState?.taskId === task.id}
@@ -101,21 +97,6 @@ export function TaskTable({
                 ))}
               </tbody>
             </table>
-          </div>
-
-          <div
-            className="drop-zone drop-zone-end"
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={() => {
-              if (!dragState) {
-                return;
-              }
-
-              onReorderTask(dragState.taskId, section.key, section.tasks.length);
-              setDragState(null);
-            }}
-          >
-            Drop here to place at the end of {section.title.toLowerCase()}
           </div>
         </section>
       ))}

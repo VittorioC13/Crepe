@@ -29,7 +29,7 @@ export function TaskBoardShell() {
         <>
           <TaskTable
             completed={board.grouped.completed}
-            onAddTask={(title) => board.addTask({ title })}
+            onAddTask={(draft) => board.addTask(draft)}
             onDeleteTask={board.deleteTask}
             onReorderTask={board.reorderTask}
             onUpdateTask={board.updateTask}

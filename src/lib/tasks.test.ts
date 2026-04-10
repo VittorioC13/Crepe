@@ -9,6 +9,11 @@ describe("task helpers", () => {
     expect(task.sortOrder).toBe(0);
   });
 
+  it("allows blank titles", () => {
+    const task = createTask({ title: "" }, 0);
+    expect(task.title).toBe("");
+  });
+
   it("moves a task into completed when dropped there", () => {
     const first = createTask({ title: "A" }, 0);
     const second = createTask({ title: "B" }, 1);

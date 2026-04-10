@@ -13,8 +13,9 @@ describe("TaskBoardShell", () => {
     const user = userEvent.setup();
     render(<TaskBoardShell />);
 
-    await user.type(screen.getByLabelText("New task title"), "Prepare roadmap");
     await user.click(screen.getByRole("button", { name: "New task" }));
+    await user.type(screen.getByLabelText("New task title"), "Prepare roadmap");
+    await user.click(screen.getByRole("button", { name: "Add task" }));
 
     expect(screen.getByDisplayValue("Prepare roadmap")).toBeInTheDocument();
   });
@@ -37,5 +38,14 @@ describe("TaskBoardShell", () => {
     fireEvent.change(titleInput, { target: { value: "Refined goal" } });
 
     expect(screen.getByDisplayValue("Refined goal")).toBeInTheDocument();
+  });
+
+  it("keeps task title blank when cleared", () => {
+    render(<TaskBoardShell />);
+
+    const titleInput = screen.getByLabelText("Title for Align product goals");
+    fireEvent.change(titleInput, { target: { value: "" } });
+
+    expect(screen.getByDisplayValue("")).toBeInTheDocument();
   });
 });

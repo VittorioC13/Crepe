@@ -36,7 +36,7 @@ export function createTask(draft: TaskDraft, sortOrder: number): Task {
 
   return {
     id: createId(),
-    title: draft.title.trim() || "Untitled task",
+    title: draft.title ?? "",
     status,
     priority: draft.priority ?? DEFAULT_PRIORITY,
     dueDate: draft.dueDate ?? null,
@@ -137,7 +137,7 @@ export function normalizeTasks(tasks: Task[]) {
       ...task,
       status,
       priority,
-      title: task.title?.trim() || "Untitled task",
+      title: task.title ?? "",
       dueDate: task.dueDate ?? null,
       timelineStart: task.timelineStart ?? null,
       timelineEnd: task.timelineEnd ?? null,

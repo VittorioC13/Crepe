@@ -40,6 +40,7 @@ export function TimelineCalendar({
 }) {
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const [interaction, setInteraction] = useState<InteractionState>(null);
+  const [liveDelta, setLiveDelta] = useState(0);
   const timelineTasks = useMemo(
     () => tasks.filter((task) => task.timelineStart && task.timelineEnd),
     [tasks],
@@ -104,6 +105,18 @@ export function TimelineCalendar({
     onUpdateTask(task.id, patch);
   }
 
+  function getPreview(taskId: string, type: "move" | "resize", edge?: "start" | "end") {
+    if (!interaction || interaction.taskId !== taskId || interaction.type !== type) {
+      return null;
+    }
+
+    if (type === "resize" && interaction.type === "resize" && interaction.edge !== edge) {
+      return null;
+    }
+
+    return liveDelta;
+  }
+
   return (
     <div className="panel">
       <div className="panel-header timeline-header">
@@ -147,11 +160,21 @@ export function TimelineCalendar({
             {timelineTasks.map((task) => {
               const offset = diffDays(bounds.start, task.timelineStart as string);
               const length = diffDays(task.timelineStart as string, task.timelineEnd as string) + 1;
+              const movePreview = getPreview(task.id, "move") ?? 0;
+              const resizeStartPreview = getPreview(task.id, "resize", "start") ?? 0;
+              const resizeEndPreview = getPreview(task.id, "resize", "end") ?? 0;
+              const previewLeft = offset * DAY_WIDTH + movePreview + resizeStartPreview;
+              const previewWidth = Math.max(
+                DAY_WIDTH,
+                length * DAY_WIDTH + resizeEndPreview - resizeStartPreview,
+              );
               return (
                 <div className="timeline-row" key={task.id}>
                   <div className="timeline-row-label">
-                    <strong>{task.title}</strong>
-                    <span>{formatShortDate(task.timelineStart)} to {formatShortDate(task.timelineEnd)}</span>
+                    <strong>{task.title.trim() || "Blank task"}</strong>
+                    <span>
+                      {formatShortDate(task.timelineStart)} to {formatShortDate(task.timelineEnd)}
+                    </span>
                   </div>
                   <div className="timeline-track">
                     {columns.map((date) => (
@@ -164,8 +187,8 @@ export function TimelineCalendar({
                     <div
                       className={`timeline-bar ${timelineColor(task)}`}
                       style={{
-                        left: offset * DAY_WIDTH,
-                        width: length * DAY_WIDTH,
+                        left: previewLeft,
+                        width: previewWidth,
                       }}
                       onPointerDown={(event) => {
                         event.preventDefault();
@@ -175,26 +198,27 @@ export function TimelineCalendar({
                           taskId: task.id,
                           startX: event.clientX,
                         });
+                        setLiveDelta(0);
                       }}
                       onPointerMove={(event) => {
                         if (!interaction || interaction.taskId !== task.id) {
                           return;
                         }
-                        const deltaX = event.clientX - interaction.startX;
-                        event.currentTarget.style.transform = `translateX(${deltaX}px)`;
+                        setLiveDelta(event.clientX - interaction.startX);
                       }}
                       onPointerUp={(event) => {
                         if (!interaction || interaction.taskId !== task.id) {
                           return;
                         }
                         const deltaX = event.clientX - interaction.startX;
-                        event.currentTarget.style.transform = "";
                         commitInteraction(task, deltaX);
                         setInteraction(null);
+                        setLiveDelta(0);
                       }}
                     >
+                      <div className="timeline-bar-progress" />
                       <button
-                        aria-label={`Adjust start date for ${task.title}`}
+                        aria-label={`Adjust start date for ${task.title.trim() || "blank task"}`}
                         className="timeline-handle"
                         onPointerDown={(event) => {
                           event.stopPropagation();
@@ -206,6 +230,7 @@ export function TimelineCalendar({
                             edge: "start",
                             startX: event.clientX,
                           });
+                          setLiveDelta(0);
                         }}
                         onPointerMove={(event) => {
                           if (
@@ -216,10 +241,7 @@ export function TimelineCalendar({
                           ) {
                             return;
                           }
-                          const deltaX = event.clientX - interaction.startX;
-                          const baseWidth = length * DAY_WIDTH;
-                          event.currentTarget.parentElement!.style.left = `${offset * DAY_WIDTH + deltaX}px`;
-                          event.currentTarget.parentElement!.style.width = `${baseWidth - deltaX}px`;
+                          setLiveDelta(event.clientX - interaction.startX);
                         }}
                         onPointerUp={(event) => {
                           if (
@@ -231,17 +253,18 @@ export function TimelineCalendar({
                             return;
                           }
                           const deltaX = event.clientX - interaction.startX;
-                          const bar = event.currentTarget.parentElement as HTMLDivElement;
-                          bar.style.left = `${offset * DAY_WIDTH}px`;
-                          bar.style.width = `${length * DAY_WIDTH}px`;
                           commitInteraction(task, deltaX);
                           setInteraction(null);
+                          setLiveDelta(0);
                         }}
                         type="button"
                       />
-                      <span>{task.title}</span>
+                      <div className="timeline-bar-copy">
+                        <span>{task.title.trim() || "Blank task"}</span>
+                        <small>{length} days</small>
+                      </div>
                       <button
-                        aria-label={`Adjust end date for ${task.title}`}
+                        aria-label={`Adjust end date for ${task.title.trim() || "blank task"}`}
                         className="timeline-handle"
                         onPointerDown={(event) => {
                           event.stopPropagation();
@@ -253,6 +276,7 @@ export function TimelineCalendar({
                             edge: "end",
                             startX: event.clientX,
                           });
+                          setLiveDelta(0);
                         }}
                         onPointerMove={(event) => {
                           if (
@@ -263,8 +287,7 @@ export function TimelineCalendar({
                           ) {
                             return;
                           }
-                          const deltaX = event.clientX - interaction.startX;
-                          event.currentTarget.parentElement!.style.width = `${length * DAY_WIDTH + deltaX}px`;
+                          setLiveDelta(event.clientX - interaction.startX);
                         }}
                         onPointerUp={(event) => {
                           if (
@@ -276,10 +299,9 @@ export function TimelineCalendar({
                             return;
                           }
                           const deltaX = event.clientX - interaction.startX;
-                          const bar = event.currentTarget.parentElement as HTMLDivElement;
-                          bar.style.width = `${length * DAY_WIDTH}px`;
                           commitInteraction(task, deltaX);
                           setInteraction(null);
+                          setLiveDelta(0);
                         }}
                         type="button"
                       />
