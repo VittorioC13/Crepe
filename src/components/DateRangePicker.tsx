@@ -73,6 +73,7 @@ export function DateRangePicker({
       setInternalOpen(next);
     }
   };
+  const closePopover = () => setOpen(false);
   const [monthIso, setMonthIso] = useState(() => {
     const base = value.start ?? value.due ?? todayIso();
     const date = parseIsoDate(base);
@@ -81,18 +82,18 @@ export function DateRangePicker({
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    function onDocPointer(event: PointerEvent) {
+    function onDocClick(event: MouseEvent) {
       if (!rootRef.current) {
         return;
       }
       if (!rootRef.current.contains(event.target as Node)) {
-        setOpen(false);
+        closePopover();
       }
     }
 
     if (open) {
-      document.addEventListener("pointerdown", onDocPointer);
-      return () => document.removeEventListener("pointerdown", onDocPointer);
+      document.addEventListener("click", onDocClick);
+      return () => document.removeEventListener("click", onDocClick);
     }
     return undefined;
   }, [open]);
@@ -213,7 +214,17 @@ export function DateRangePicker({
             >
               Clear
             </button>
-            <button className="primary-button" onClick={() => setOpen(false)} type="button">
+            <button
+              className="primary-button"
+              onClick={(event) => {
+                event.stopPropagation();
+                closePopover();
+              }}
+              onPointerDown={(event) => {
+                event.stopPropagation();
+              }}
+              type="button"
+            >
               Done
             </button>
           </div>
