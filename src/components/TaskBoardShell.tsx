@@ -7,6 +7,12 @@ import { useTaskBoard } from "../hooks/useTaskBoard";
 
 export function TaskBoardShell() {
   const board = useTaskBoard();
+  const adminEmails =
+    process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(",")
+      .map((item) => item.trim().toLowerCase())
+      .filter(Boolean) ?? [];
+  const isAdmin =
+    board.user?.email && adminEmails.includes(board.user.email.toLowerCase());
 
   return (
     <main className="app-shell">
@@ -26,6 +32,18 @@ export function TaskBoardShell() {
       </section>
 
       {board.hydrated ? (
+        board.authEnabled && !board.session ? (
+          <section className="panel auth-panel">
+            <p className="eyebrow">Sign in required</p>
+            <h2>Try Crepe with your Google account</h2>
+            <p className="hero-copy">
+              Sign in to create your own board and let others try the product.
+            </p>
+            <button className="primary-button" onClick={board.signInWithGoogle} type="button">
+              Continue with Google
+            </button>
+          </section>
+        ) : (
         <>
           <TaskTable
             completed={board.grouped.completed}
@@ -36,7 +54,23 @@ export function TaskBoardShell() {
             todo={board.grouped.todo}
           />
           <TimelineCalendar onUpdateTask={board.updateTask} tasks={board.tasks} />
+          {board.authEnabled ? (
+            <section className="panel account-panel">
+              <p>Signed in as {board.user?.email}</p>
+              <div className="account-actions">
+                {isAdmin ? (
+                  <a className="ghost-button" href="/admin">
+                    View user activity
+                  </a>
+                ) : null}
+                <button className="ghost-button" onClick={board.signOut} type="button">
+                  Sign out
+                </button>
+              </div>
+            </section>
+          ) : null}
         </>
+        )
       ) : (
         <div className="panel loading-panel">Loading workspace…</div>
       )}

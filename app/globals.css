@@ -764,6 +764,26 @@ h1 {
   color: var(--muted);
 }
 
+.auth-panel h2 {
+  margin-bottom: 10px;
+}
+
+.auth-panel .primary-button {
+  margin-top: 14px;
+}
+
+.account-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.account-actions {
+  display: flex;
+  gap: 10px;
+}
+
 @media (max-width: 900px) {
   .app-shell {
     padding: 20px 14px 48px;
@@ -812,5 +832,23 @@ h1 {
 
   .timeline-axis-spacer {
     width: 260px;
+  }
+
+  .account-panel {
+    display: block;
+  }
+
+  .account-actions {
+    margin-top: 10px;
+    display: block;
+  }
+
+  .account-actions .ghost-button {
+    margin-top: 8px;
+    width: 100%;
+    display: block;
+    text-align: center;
+    line-height: 44px;
+    text-decoration: none;
   }
 }
